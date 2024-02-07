@@ -1,0 +1,33 @@
+#countdown {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 20px;
+
+}
+
+#countdown h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+#countdown-clock {
+    display: flex;
+    justify-content: center;
+}
+
+#countdown-clock div {
+    margin-right: 10px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+
+#countdown-clock div span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+#countdown-clock div:last-child {
+    margin-right: 0;
+}
