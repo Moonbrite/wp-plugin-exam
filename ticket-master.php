@@ -13,9 +13,10 @@ if (!defined('ABSPATH')) {
 
 
 
-
 $active_plugins = get_option('active_plugins');
-if (in_array('woocommerce/woocommerce.php', $active_plugins)) {
+// Vérification de l'activation des plugin
+if (in_array('woocommerce/woocommerce.php', $active_plugins) &&
+    in_array('advanced-custom-fields/acf.php', $active_plugins)) {
 
     add_action('acf/init', 'ticket_master_fields');
     add_action("save_post","ticket_master_save_form");
@@ -23,6 +24,7 @@ if (in_array('woocommerce/woocommerce.php', $active_plugins)) {
     add_action('wp_enqueue_scripts', 'ticket_master_display_enqueue_styles');
 
 
+    // Initialisation des input
     function ticket_master_fields() {
 
         // Vérifie si ACF est actif
@@ -79,8 +81,13 @@ if (in_array('woocommerce/woocommerce.php', $active_plugins)) {
 
             // Enregistrement du groupe de champs
             acf_add_local_field_group( $fields );
+        }else{
+            echo '<h2>ACF n\'est pas bien activer</h2>';
         }
     }
+
+
+    // Enregistrement des donnés en base de donné
     function ticket_master_save_form($post_id){
 
         if(isset($_POST['date_of_concerts'])){
@@ -116,12 +123,17 @@ if (in_array('woocommerce/woocommerce.php', $active_plugins)) {
         }
 
     }
+
+
+    // Initialisation des shortcode
     function ticket_master_shortcode(){
-        add_shortcode('info', 'ticket_master_do_shortcode');
+        add_shortcode('info', 'ticket_master_display_shortcode');
         add_shortcode('informations_privees', 'ticket_master_display_prived_info');
     }
-    function ticket_master_do_shortcode(){
 
+
+    // Affichage du shotcode avec les donnée
+    function ticket_master_display_shortcode(){
 
         $id = get_the_ID();
 
@@ -152,20 +164,19 @@ if (in_array('woocommerce/woocommerce.php', $active_plugins)) {
             "Heure du concert : ".$heure_clean." h<br>".
             "Description suplémentaire : ".$descrition_sup."<br>";
 
-
-
         $product_id = get_the_ID();
 
-// Récupérer la date de l'événement à partir des méta-données du produit
+        // Récupérer la date de l'événement à partir des méta-données du produit
         $event_date = get_post_meta($product_id, 'date_of_concerts', true);
 
-// Récupérer l'heure de l'événement à partir des méta-données du produit
+        // Récupérer l'heure de l'événement à partir des méta-données du produit
         $event_hour = get_post_meta($product_id, 'heure', true);
 
 
-// Concaténer la date et l'heure pour former un timestamp complet de l'événement
+        // Concaténer la date et l'heure pour former un timestamp complet de l'événement
         $event_datetime = strtotime($event_date . ' ' . $event_hour);
 
+        // J'enléve 1 heure car le fuseau horaire n'est pas le bon
         $event_datetime = strtotime('-1 hour', $event_datetime);
 
 // Vérifier si la date et l'heure de l'événement sont valides
@@ -182,7 +193,6 @@ if (in_array('woocommerce/woocommerce.php', $active_plugins)) {
                     // Calcul du temps restant jusqu'à l'événement
                     var timeLeft = eventTimestamp - currentTimestamp ;
 
-                    console.log(eventTimestamp)
                     // Si le temps restant est négatif, l'événement est passé
                     if (timeLeft < 0) {
                         document.getElementById('countdown').innerHTML = 'L\'événement est terminé.';
@@ -220,13 +230,14 @@ if (in_array('woocommerce/woocommerce.php', $active_plugins)) {
             </script>
 
             <?php
-        } else {
-            // La date ou l'heure de l'événement n'est pas disponible
         }
 
         return "<p>$allInfos</p>";
 
     }
+
+
+    // Affichage du shotcode avec les donnée privé
     function ticket_master_display_prived_info(){
 
         if (is_user_logged_in()) {
@@ -250,14 +261,18 @@ if (in_array('woocommerce/woocommerce.php', $active_plugins)) {
         }
 
     }
+
+
+    // Rajout du style css
     function ticket_master_display_enqueue_styles()
     {
         wp_enqueue_style('style', plugins_url('css/style.css', __FILE__));
     }
 
 }
+// Si les plugin ne sont pas activer on affiche un message
 else{
-    echo("<h1 style='text-align: center;color:red'>Veuiller activé le plugin woocommerce</h1>");
+    echo("<h1 style='text-align: center;color:red'>Veuiller activé les plugin woocommerce et advanced-custom-fields </h1>");
 }
 
 
